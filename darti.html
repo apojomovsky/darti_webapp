@@ -83,12 +83,11 @@
 		</div>
 		<div class="col-md-3">
 		<label>GET info</label>
-		<textarea class="form-control" name="message" placeholder="GET info" rows="5" id = "GET">
-Fecha: {{fecha}}
-Temperatura: {{temperatura}}
-Viento: {{viento}}
-Humedad:{{humedad}}
-Presion:{{presion}} </textarea>
+		<textarea class="form-control" name="message" placeholder="GET info" rows="5" id = "GET">{{#if getDatos}}Fecha: {{getDatos.fecha}}
+Temperatura: {{getDatos.temperatura1}}
+Viento: {{getDatos.viento1}}
+Humedad:{{getDatos.humedad1}}
+Presión:{{getDatos.presion1}}{{/if}}</textarea>
 		</div>
 	</div>
 </template>
@@ -106,5 +105,5 @@ Presion:{{presion}} </textarea>
 </template>
 
 <template name="datos">
-	<h1>Esta es la pagina de datos</h1>
+	<h1>Acaba de ingresar datos GET</h1>
 </template>

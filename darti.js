@@ -2,10 +2,7 @@
 Datos= new Meteor.Collection("Datos");
 Logs= new Meteor.Collection("Logs");
 Get= new Meteor.Collection("Get");
-var temperatura;
-var viento;
-var humedad;
-var presion;
+
 Router.configure({
 	layoutTemplate:'main'
 });
@@ -17,14 +14,7 @@ Router.route('/',{
 
 Router.route('/datos',{
 	name:'datos',
-	template:'datos',
-	data: function () {
-      console.log(Router.current().params);
-      temperatura=Router.current().params.query.temperatura;
-      viento=Router.current().params.query.viento;
-      humedad=Router.current().params.query.humedad;
-      presion=Router.current().params.query.presion;
-    }
+	template:'datos'
 });
 
 Router.route('/informes',{
@@ -60,11 +50,8 @@ if (Meteor.isServer) {
 			//return Logs.find({createdBy: currentUserId})
 			return Get.find()
 		});
-
 	});
-	var bandera= 0;
 	
-
 	var gmailClients = {};
 	Meteor.users.find().observe({
 		added: function (doc) {
@@ -89,7 +76,7 @@ if (Meteor.isServer) {
 				var mensaje1=String(mensaje);
 				var mensaje2=mensaje1.slice(1,-1);
 				var mensaje3= mensaje2.split("#");
-				if (bandera===0){
+				/*if(Logs.find().count()!=0){
 					Logs.insert({
 							ack:false,
 							aldea:mensaje3[0],
@@ -100,9 +87,8 @@ if (Meteor.isServer) {
 							remitente:message.from,
 							fecha:message.date
 						});
-					bandera=1;
-				}
-				else if (message._id!==Logs.findOne({mailId:message._id})){
+				}*/
+				if (message._id!=Logs.findOne({mailId:message._id})){
 					Logs.insert({
 						ack:false,
 						aldea:mensaje3[0],
@@ -117,6 +103,17 @@ if (Meteor.isServer) {
 			});
 		}
 	});
+
+	return Meteor.methods({
+		'cargarDatosGet': function(ayuda){
+			Datos.insert(ayuda);
+		},
+		'ultimaDeteccion':function(){
+			var loco=Logs.findOne({}, {sort: {fecha: -1, limit: 1}});
+			return loco;
+		}
+	});
+
 }
 
 if (Meteor.isClient) {
@@ -129,24 +126,6 @@ if (Meteor.isClient) {
 	Meteor.subscribe ('Datos');
 	Meteor.subscribe ('Logs');
 	Meteor.subscribe ('Get');
-
-	Datos.insert({
-		temp:temperatura,
-		vien:viento,
-		hume:humedad,
-		pres:presion,
-		fecha:new Date()
-	});
-
-	//Funcion para parsear los datos de los mails. Al final quedo en el server
-	/*function parseData(data){
-    var newLog=data;
-    var newLog1=newLog.slice(1,8);
-    console.log(newLog1);
-    var newLog2= newLog1.split("#");
-    console.log(newLog2);
-    return newLog2;
-  	}*/
 
 	Template.mapview1.onRendered(function () {
 		/*Logs.insert({
@@ -183,30 +162,33 @@ if (Meteor.isClient) {
 		});
 		marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
 		//Rutina de evento "click" en el mapa
-		var ultimaDeteccion= Logs.findOne({}, {sort: {fecha: -1, limit: 1}});
-		console.log();
+		//var ultimaDeteccion= Logs.findOne({}, {sort: {fecha: -1, limit: 1}}).fetch();
+		console.log(Logs.findOne({}, {sort: {fecha: -1, limit: 1}}));
 		if(Logs.find().count()!=0){
-			if(ultimaDeteccion.aldea===1 && ultimaDeteccion.casa===1){
-			marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+			if(ultimaDeteccion.aldea===1 && ultimaDeteccion.casa===1 && ultimaDeteccion.ack===false){
+				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
 			}
-			if(ultimaDeteccion.aldea===1 && ultimaDeteccion.casa===2){
-			marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+			if(ultimaDeteccion.aldea===1 && ultimaDeteccion.casa===2 && ultimaDeteccion.ack===false){
+				marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
 			}
 		}
 		marker.addListener('click', function() {
+			/*console.log(Logs.findOne({}, {sort: {fecha: -1, limit: 1}}));
 			Logs.update(ultimaDeteccion._id,{
 				$set:{ack:true},
-			});
-    		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+			});*/
+    		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
   		});
   		marker2.addListener('click', function() {
-	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
   		});
 	}); 
 
-	Template.mapview1.helpers({
-
-	});
+	/*Template.mapview1.helpers({
+		'ultimo':function(){
+			return Logs.findOne({}, {sort: {fecha: -1, limit: 1}})
+		}
+	});*/
 
 	Template.mapview2.onRendered(function () {
 		/*Logs.insert({
@@ -257,11 +239,26 @@ if (Meteor.isClient) {
 
 	Template.todo.helpers({
 		'log':function(){
-			return Logs.find({}, {sort: {createdAt: -1} });
+			return Logs.find({}, {sort: {createdAt: -1} })
 		},
-		'temperatura':function(){
-			return temperatura;
+		'getDatos':function(){
+			return Datos.findOne({}, {sort: {fecha: -1, limit: 1}});
 		}
+	});
+
+	Template.datos.onRendered(function(){
+		var temperatura=Router.current().params.query.temperatura;
+		var viento=Router.current().params.query.viento;
+		var humedad=Router.current().params.query.humedad;
+		var presion=Router.current().params.query.presion;
+		var ayuda={
+			temperatura1:temperatura,
+			viento1:viento,
+			humedad1:humedad,
+			presion1:presion,
+			fecha:new Date()
+		};
+		Meteor.call("cargarDatosGet",ayuda);
 	});
 }
 
