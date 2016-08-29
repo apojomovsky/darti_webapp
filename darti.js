@@ -1,6 +1,6 @@
 //Colecciones
 Datos= new Meteor.Collection("Datos");
-Logs= new Meteor.Collection("Logs");
+//Logs= new Meteor.Collection("Logs");
 Get= new Meteor.Collection("Get");
 Inbound = new Meteor.Collection("Inbound");
 
@@ -84,11 +84,11 @@ if (Meteor.isServer) {
 			//return Datos.find({createdBy: currentUserId})
 			return Datos.find()
 		});
-		Meteor.publish('Logs',function(){
+		/*Meteor.publish('Logs',function(){
 			//var currentUserId=this.userId;
 			//return Logs.find({createdBy: currentUserId})
 			return Logs.find()
-		});
+		});*/
 		Meteor.publish('Get',function(){
 			//var currentUserId=this.userId;
 			//return Logs.find({createdBy: currentUserId})
@@ -191,7 +191,7 @@ if (Meteor.isServer) {
 	      	Meteor.users.update(Meteor.userId(), {$set: {profile: profile}});
       	},
 		'ultimaDeteccion':function(){
-			return Logs.findOne({}, {sort: {fecha: -1, limit: 1}})
+			return Inbound.findOne({}, {sort: {Date: -1, limit: 1}});
 		}
 		/*
 		'cantidadEntradas':function(){
@@ -209,7 +209,7 @@ if (Meteor.isClient) {
   	});*/
 
 	Meteor.subscribe ('Datos');
-	Meteor.subscribe ('Logs');
+	//Meteor.subscribe ('Logs');
 	Meteor.subscribe ('Get');
 	Meteor.subscribe ('Inbound');
 
@@ -237,6 +237,16 @@ if (Meteor.isClient) {
 		marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
 		//Rutina de evento "click" en el mapa
 		//Logs.findOne({}, {sort: {fecha: -1, limit: 1}}).fetch()
+		Meteor.call ("ultimaDeteccion", function(error,result){
+			if(error){
+				console.log(error);
+			} else{
+				Session.set('ultimaDet',result);
+				console.log(result);
+			}
+		});
+		datoUtil=Session.get('ultimaDet');
+		console.log("SPARTAA " + datoUtil);
 		/*var ultimaDeteccion;
 		Meteor.call ("ultimaDeteccion", function(error,result){
 			if(error){
@@ -279,12 +289,6 @@ if (Meteor.isClient) {
 	}); 
 
 	Template.mapview2.onRendered(function () {
-		/*Logs.insert({
-			ack:false,
-			aldea:2,
-			casa:1,
-			sensor:1
-		});*/
 		var mapOptions = {
 			zoom: 16,
 			center: new google.maps.LatLng(-25.342175, -57.625492)
@@ -302,12 +306,6 @@ if (Meteor.isClient) {
 		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
 	});  
 	Template.mapview3.onRendered(function () {
-		/*Logs.insert({
-			ack:false,
-			aldea:3,
-			casa:1,
-			sensor:1
-		});*/
 		var mapOptions = {
 			zoom: 16,
 			center: new google.maps.LatLng(-25.093469, -57.521271)
@@ -327,10 +325,10 @@ if (Meteor.isClient) {
 
 	Template.todo.helpers({
 		'log':function(){
-			return Inbound.find({}, {sort: {createdAt: -1} })
+			return Inbound.find({}, {sort: {Date: -1} })
 		},
 		'getDatos':function(){
-			return Datos.findOne({}, {sort: {fecha: -1, limit: 1}});
+			return Datos.findOne({}, {sort: {Date: -1, limit: 1}});
 		}
 	});
 
