@@ -2,22 +2,48 @@ body{
 	padding-top: 80px;
 }
 
+div.container4 {
+  height: 10em;
+  position: relative 
+}
+
+div.container4 p {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%)
+}
+
+div.container4 h1 {
+  margin: 0;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%)
+}
+
 #map-canvas1 {
   height: 400px;
   margin: auto;
-  margin-left: 50px; 
+  margin-left: 50px;
+  margin-bottom: 10px;
 }
 
 #map-canvas2 {
   height: 400px;
   margin: auto;
-  margin-left: 50px; 
+  margin-left: 50px;
+  margin-bottom: 10px;
 }
 
 #map-canvas3 {
   height: 400px;
   margin: auto;
-  margin-left: 50px; 
+  margin-left: 50px;
+  margin-bottom: 10px; 
 }
 
 .navbar-right {
