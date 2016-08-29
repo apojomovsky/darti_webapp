@@ -198,6 +198,28 @@ if (Meteor.isServer) {
  
 		return {fields: fields, data: data};
 		},
+		exportAllContacts2: function() {		
+		var fields = [
+			"Aldea",
+			"Casa",
+			"Sensor",
+			"Fecha"		
+		];
+ 
+		var data = [];		
+ 
+		var logs = Inbound.find().fetch();
+		_.each(logs, function(c) {
+			data.push([
+				c.Aldea,
+				c.Casa,
+				c.Sensor,
+				c.Date
+			]);
+		});
+ 
+		return {fields: fields, data: data};
+		},
 		'updateAck':function(id){
 			Inbound.update(id,{$set: {
 					Ack:true
@@ -429,6 +451,9 @@ if (Meteor.isClient) {
 	Template.exportarLogsEstacion.events({
  		"click #export": function() {
  			MyAppExporter.exportAllContacts();
+ 		},
+ 		"click #export2": function(){
+ 			MyAppExporter.exportAllContacts2();
  		}
  	});
 
@@ -446,7 +471,19 @@ if (Meteor.isClient) {
  				self._downloadCSV(csv);
  			});
  		},
+ 		exportAllContacts2: function() {
+ 			var self = this;
+ 			Meteor.call("exportAllContacts2", function(error, data) {
 
+ 				if ( error ) {
+ 					alert(error); 
+ 					return false;
+ 				}
+
+ 				var csv = Papa.unparse(data);
+ 				self._downloadCSV2(csv);
+ 			});
+ 		},
  		exportContact: function(id) {
  			var self = this;
  			Meteor.call("exportContact", id, function(error, data) {
@@ -465,7 +502,18 @@ if (Meteor.isClient) {
  			var blob = new Blob([csv]);
  			var a = window.document.createElement("a");
  			a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
- 			a.download = "contacts.csv";
+ 			fecha=moment.utc().format("DD/MM/YYYY");
+ 			a.download = "Datos_Estacion_"+fecha+".csv";
+ 			document.body.appendChild(a);
+ 			a.click();
+ 			document.body.removeChild(a);
+ 		},
+ 		_downloadCSV2: function(csv) {
+ 			var blob = new Blob([csv]);
+ 			var a = window.document.createElement("a");
+ 			a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+ 			fecha=moment.utc().format("DD/MM/YYYY");
+ 			a.download = "Datos_Detecciones_" +fecha+".csv";
  			document.body.appendChild(a);
  			a.click();
  			document.body.removeChild(a);
