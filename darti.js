@@ -16,25 +16,25 @@ Router.route('/',{
 });
 
 Router.route("datos", function() {
-  var query = this.request.query;
-  this.response.statusCode = 200;
-  this.response.end('Recibido');
-  ayuda={
-	  dirviento:query.dirviento,
-	  velviento:query.velviento,
-	  lluvia:query.lluvia,
-	  temp_ext:query.temp_ext,
-	  temp_int:query.temp_int,
-	  humedad:query.humedad,
-	  presion:query.presion,
-	  gps:query.gps,
-	  fuente:query.fuente,
-	  estado:query.estado,
-	  fecha:new Date()
-  };
-  Meteor.call("cargarDatosGet",ayuda);
-  console.log(query);
-  // Do something with our found user here (see below).
+	var query = this.request.query;
+	this.response.statusCode = 200;
+	this.response.end('Recibido');
+	ayuda={
+		dirviento:query.dirviento,
+		velviento:query.velviento,
+		lluvia:query.lluvia,
+		temp_ext:query.temp_ext,
+		temp_int:query.temp_int,
+		humedad:query.humedad,
+		presion:query.presion,
+		gps:query.gps,
+		fuente:query.fuente,
+		estado:query.estado,
+		fecha:new Date()
+	};
+	Meteor.call("cargarDatosGet",ayuda);
+	console.log(query);
+	// Do something with our found user here (see below).
 }, { where: "server" });
 
 Router.route('/informes',{
@@ -51,13 +51,13 @@ Router.route('/marcadores',{
 	name:'marcadores',
 	template:'marcadores',
 	onBeforeAction: function(){
-    var currentUser = Meteor.userId();
-    if(currentUser){
-      this.next();
-    } else {
-      this.render("login");
-    }
-  }
+		var currentUser = Meteor.userId();
+		if(currentUser){
+			this.next();
+		} else {
+			this.render("login");
+		}
+	}
 });
 
 Router.route('/agregarMarcador',{
@@ -76,16 +76,16 @@ Router.route('/exportarLogsEstacion',{
 });
 
 Router.route('/account', {
-  name: 'account',
-  template: 'account',
-  onBeforeAction: function(){
-    var currentUser = Meteor.userId();
-    if(currentUser){
-      this.next();
-    } else {
-      this.render("login");
-    }
-  }
+	name: 'account',
+	template: 'account',
+	onBeforeAction: function(){
+		var currentUser = Meteor.userId();
+		if(currentUser){
+			this.next();
+		} else {
+			this.render("login");
+		}
+	}
 });
 
 Router.route('/inbound', function () {
@@ -122,28 +122,15 @@ Router.route('/inbound', function () {
 
 T9n.setLanguage('es');
 T9n.map('es', {
-    "User not found": "Usuario no encontrado",
-    "Match failed": "Por favor introduzca su usuario y contraseña",
-    "Incorrect password": "Contraseña equivocada",
-    "Email already exists.": "Ya existe un usuario registrado con este correo",
-    "Need to set a username or email": "Por favor introduzca su direccion de correo",
-    "Password may not be empty": "Por favor introduzca su contraseña"
+	"User not found": "Usuario no encontrado",
+	"Match failed": "Por favor introduzca su usuario y contraseña",
+	"Incorrect password": "Contraseña equivocada",
+	"Email already exists.": "Ya existe un usuario registrado con este correo",
+	"Need to set a username or email": "Por favor introduzca su direccion de correo",
+	"Password may not be empty": "Por favor introduzca su contraseña"
 });
 
 if (Meteor.isServer) {
-    if (Markers.find({}).count() === 0) {
-        Markers.insert({
-			lat: -25.305609,
-			lng: -57.560252,
-			map: "mapa1",
-
-        });
-        Markers.insert({
-            'translation': 'en_US',
-            'value1': 'translation1',
-            'value2': 'translation2'
-        });
-    }
 	Meteor.startup(function () {
 		Meteor.publish('Datos',function(){
 			//var currentUserId=this.userId;
@@ -166,10 +153,10 @@ if (Meteor.isServer) {
 	});
 
 	Router.configureBodyParsers = function(){
-    	Router.onBeforeAction( Iron.Router.bodyParser.raw({type: '*/*', only: ['inbound'],
-    		verify: function(req, res, body){
-    		req.rawBody = body.toString();
-    	}, where: 'server'}));
+		Router.onBeforeAction( Iron.Router.bodyParser.raw({type: '*/*', only: ['inbound'],
+		verify: function(req, res, body){
+			req.rawBody = body.toString();
+		}, where: 'server'}));
 	};
 
 
@@ -178,12 +165,12 @@ if (Meteor.isServer) {
 			Datos.insert(ayuda);
 		},
 		'updateAccount': function (name, lastname) {
-	      	var user = Meteor.users.findOne(this.userId);
-	      	var profile = user.profile;
-	      	profile.firstName = name;
-	      	profile.lastName = lastname;
-	      	Meteor.users.update(Meteor.userId(), {$set: {profile: profile}});
-      	},
+			var user = Meteor.users.findOne(this.userId);
+			var profile = user.profile;
+			profile.firstName = name;
+			profile.lastName = lastname;
+			Meteor.users.update(Meteor.userId(), {$set: {profile: profile}});
+		},
 		'ultimaDeteccion':function(){
 			return Inbound.findOne({}, {sort: {Date: -1, limit: 1}});
 		},
@@ -203,9 +190,9 @@ if (Meteor.isServer) {
 				long:long1
 			}
 		});
-		},
+	},
 
-		exportAllContacts: function() {		
+	exportAllContacts: function() {
 		var fields = [
 			"Direccion del Viento",
 			"Velocidad del Viente",
@@ -217,17 +204,17 @@ if (Meteor.isServer) {
 			"GPS",
 			"Fuente",
 			"Estado",
-			"Fecha"			
+			"Fecha"
 		];
- 
-		var data = [];		
- 
+
+		var data = [];
+
 		var logs = Datos.find().fetch();
 		_.each(logs, function(c) {
 			data.push([
 				c.dirviento,
 				c.velviento,
-				c.lluvia,				
+				c.lluvia,
 				c.temp_ext,
 				c.temp_int,
 				c.humedad,
@@ -238,19 +225,19 @@ if (Meteor.isServer) {
 				moment.utc(c.fecha).format("DD/MM/YYYY")
 			]);
 		});
- 
+
 		return {fields: fields, data: data};
-		},
-		exportAllContacts2: function() {		
+	},
+	exportAllContacts2: function() {
 		var fields = [
 			"Aldea",
 			"Casa",
 			"Sensor",
-			"Fecha"		
+			"Fecha"
 		];
- 
-		var data = [];		
- 
+
+		var data = [];
+
 		var logs = Inbound.find().fetch();
 		_.each(logs, function(c) {
 			data.push([
@@ -260,28 +247,28 @@ if (Meteor.isServer) {
 				c.Date
 			]);
 		});
- 
+
 		return {fields: fields, data: data};
-		},
-		'updateAck':function(id){
-			Inbound.update(id,{$set: {
-					Ack:true
-			}
-			});
+	},
+	'updateAck':function(id){
+		Inbound.update(id,{$set: {
+			Ack:true
 		}
 	});
+}
+});
 
-	Inbound.find().observeChanges({
-	  added: function() {
-	    console.log("Se agrego algo a la BD!")
-	  },
-	  changed: function() {
-	    console.log("Se cambio algo de la BD!")
-	  },
-	  removed: function() {
-	    console.log("Se quito algo a la BD!")
-	  }
-	});
+Inbound.find().observeChanges({
+	added: function() {
+		console.log("Se agrego algo a la BD!")
+	},
+	changed: function() {
+		console.log("Se cambio algo de la BD!")
+	},
+	removed: function() {
+		console.log("Se quito algo a la BD!")
+	}
+});
 }
 
 if (Meteor.isClient) {
@@ -290,84 +277,134 @@ if (Meteor.isClient) {
 	Meteor.subscribe ('Inbound');
 	Meteor.subscribe ('Markers');
 
-	Template.mapview1.onRendered(function () {
-		var numSensores=2;
-		var mapOptions = {
-			zoom: 16,
-			center: new google.maps.LatLng(-25.304251, -57.560504)
-		};
-		map = new google.maps.Map(document.getElementById('map-canvas1'), mapOptions);
-		directionsService = new google.maps.DirectionsService();
-		directionsDisplay = new google.maps.DirectionsRenderer();
-		directionsDisplay.setMap(map);
-		directionsDisplay.setPanel(document.getElementById('directions-panel'));
-		var marker = new google.maps.Marker({
-		position: {lat: -25.304251, lng:-57.560504},
-		map: map,
-		title:"Municipalidad de Asuncion"
-		});
-		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-		var marker2 = new google.maps.Marker({
-		position: {lat: -25.305609, lng:-57.560252},
-		map: map,
-		title:"Municipalidad de Asuncion 2"
-		});
-		marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-		//Logs.findOne({}, {sort: {fecha: -1, limit: 1}}).fetch()
-		this.autorun(function() {
-				Meteor.call ("ultimaDeteccion", function(error,result){
-				if(error){
-						console.log(error);
-				} else{
-						if(result.Sensor=="01" && result.Ack==false){
-								Meteor.call("updateAck",result._id);
-								marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-						}
+	Meteor.startup(function() {
+		GoogleMaps.load();
+	});
+
+	Template.map.onCreated(function() {
+		GoogleMaps.ready('map', function(map) {
+			google.maps.event.addListener(map.instance, 'click', function(event) {
+				Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng(), ack: false });
+			});
+
+			var markers = {};
+
+			Markers.find().observe({
+				added: function (document) {
+					var marker = new google.maps.Marker({
+						draggable: false,
+						position: new google.maps.LatLng(document.lat, document.long),
+						map: map.instance,
+						id: document._id
+					});
+
+					markers[document._id] = marker;
+				},
+				changed: function (newDocument, oldDocument) {
+					markers[newDocument._id].setPosition({ lat: newDocument.lat, lng: newDocument.lng });
+				},
+				removed: function (oldDocument) {
+					markers[oldDocument._id].setMap(null);
+					google.maps.event.clearInstanceListeners(markers[oldDocument._id]);
+					delete markers[oldDocument._id];
 				}
-				});
+			});
 		});
 
-		marker.addListener('click', function() {
-    		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-  		});
-  		marker2.addListener('click', function() {
-	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-  		});
+		Template.map.helpers({
+			mapOptions: function() {
+				if (GoogleMaps.loaded()) {
+					return {
+						center: new google.maps.LatLng(-25.304251,-57.560504),
+						zoom: 16
+					};
+				}
+			}
+		});
 	});
 
-	Template.mapview2.onRendered(function () {
-		var mapOptions = {
-			zoom: 16,
-			center: new google.maps.LatLng(-25.342175, -57.625492)
-		};
-		map = new google.maps.Map(document.getElementById('map-canvas2'), mapOptions);
-		directionsService = new google.maps.DirectionsService();
-		directionsDisplay = new google.maps.DirectionsRenderer();
-		directionsDisplay.setMap(map);
-		directionsDisplay.setPanel(document.getElementById('directions-panel'));
-		var marker = new google.maps.Marker({
-		position: {lat: -25.342175, lng:-57.625492},
-		map: map,
-		title:"Municipalidad de Lambare"
+	Template.map2.onCreated(function() {
+		GoogleMaps.ready('map2', function(map) {
+			google.maps.event.addListener(map2.instance, 'click', function(event) {
+				Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng(), ack: false });
+			});
+
+			var markers = {};
+
+			Markers.find().observe({
+				added: function (document) {
+					var marker = new google.maps.Marker({
+						draggable: false,
+						position: new google.maps.LatLng(document.lat, document.long),
+						map: map2.instance,
+						id: document._id
+					});
+
+					markers[document._id] = marker;
+				},
+				changed: function (newDocument, oldDocument) {
+					markers[newDocument._id].setPosition({ lat: newDocument.lat, lng: newDocument.lng });
+				},
+				removed: function (oldDocument) {
+					markers[oldDocument._id].setMap(null);
+					google.maps.event.clearInstanceListeners(markers[oldDocument._id]);
+					delete markers[oldDocument._id];
+				}
+			});
 		});
-		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+
+		Template.map2.helpers({
+			mapOptions: function() {
+				if (GoogleMaps.loaded()) {
+					return {
+						center: new google.maps.LatLng(-25.342111,-57.625373),
+						zoom: 16
+					};
+				}
+			}
+		});
 	});
-	Template.mapview3.onRendered(function () {
-		var mapOptions = {
-			zoom: 16,
-			center: new google.maps.LatLng(-25.093469, -57.521271)
-		};
-		map = new google.maps.Map(document.getElementById('map-canvas3'), mapOptions);
-		directionsService = new google.maps.DirectionsService();
-		directionsDisplay = new google.maps.DirectionsRenderer();
-		directionsDisplay.setMap(map);
-		directionsDisplay.setPanel(document.getElementById('directions-panel'));
-		var marker = new google.maps.Marker({
-		position: {lat: -25.093469, lng:-57.521271},
-		map: map,
-		title:"Municipalidad de Villa Hayes",
+
+	Template.map3.onCreated(function() {
+		GoogleMaps.ready('map3', function(map) {
+			google.maps.event.addListener(map3.instance, 'click', function(event) {
+				Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng(), ack: false });
+			});
+
+			var markers = {};
+
+			Markers.find().observe({
+				added: function (document) {
+					var marker = new google.maps.Marker({
+						draggable: false,
+						position: new google.maps.LatLng(document.lat, document.long),
+						map: map3.instance,
+						id: document._id
+					});
+
+					markers[document._id] = marker;
+				},
+				changed: function (newDocument, oldDocument) {
+					markers[newDocument._id].setPosition({ lat: newDocument.lat, lng: newDocument.lng });
+				},
+				removed: function (oldDocument) {
+					markers[oldDocument._id].setMap(null);
+					google.maps.event.clearInstanceListeners(markers[oldDocument._id]);
+					delete markers[oldDocument._id];
+				}
+			});
 		});
-		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+
+		Template.map3.helpers({
+			mapOptions: function() {
+				if (GoogleMaps.loaded()) {
+					return {
+						center: new google.maps.LatLng(-25.304251,-57.560504),
+						zoom: 16
+					};
+				}
+			}
+		});
 	});
 
 	Template.todo.helpers({
@@ -379,294 +416,294 @@ if (Meteor.isClient) {
 		}
 	});
 
-/*
+	/*
 	Template.datos.onRendered(function(){
-		var temperatura=Router.current().params.query.temperatura;
-		var viento=Router.current().params.query.viento;
-		var humedad=Router.current().params.query.humedad;
-		var presion=Router.current().params.query.presion;
-		var ayuda={
-			temperatura1:temperatura,
-			viento1:viento,
-			humedad1:humedad,
-			presion1:presion,
-			fecha:new Date()
-		};
-		Meteor.call("cargarDatosGet",ayuda);
-	});
+	var temperatura=Router.current().params.query.temperatura;
+	var viento=Router.current().params.query.viento;
+	var humedad=Router.current().params.query.humedad;
+	var presion=Router.current().params.query.presion;
+	var ayuda={
+	temperatura1:temperatura,
+	viento1:viento,
+	humedad1:humedad,
+	presion1:presion,
+	fecha:new Date()
+};
+Meteor.call("cargarDatosGet",ayuda);
+});
 */
 
-	Template.login.events({
-		'click #btn-signup': function(event){
-			event.preventDefault();
-			var email = $('#signup-useremail').val();
-			var password = $('#signup-password').val();
-			var firstName = $('#signup-userfirstname').val();
-			var lastName = $('#signup-userlastname').val();
-			Accounts.createUser({
-				email: email,
-				password: password,
-				firstName: firstName,
-				lastName: lastName
-			}, function(error){
-				if(error){
-					alert(T9n.get(error.reason));
-				}
-			});
-		},
-		'click #btn-login': function(event){
-			event.preventDefault();
-			var email = $('#login-username').val();
-			var password = $('#login-password').val();
-			Meteor.loginWithPassword(email, password, function(error){
-				if(error){
-					alert(T9n.get(error.reason));
-				}
-			});
-		},
-		'keyup #login-password': function(event){
-			if(event.keyCode == 13){
-				$("#btn-login").click();
+Template.login.events({
+	'click #btn-signup': function(event){
+		event.preventDefault();
+		var email = $('#signup-useremail').val();
+		var password = $('#signup-password').val();
+		var firstName = $('#signup-userfirstname').val();
+		var lastName = $('#signup-userlastname').val();
+		Accounts.createUser({
+			email: email,
+			password: password,
+			firstName: firstName,
+			lastName: lastName
+		}, function(error){
+			if(error){
+				alert(T9n.get(error.reason));
 			}
-		},
-		'keyup #login-username': function(event){
-			if(event.keyCode == 13){
-				$("#btn-login").click();
+		});
+	},
+	'click #btn-login': function(event){
+		event.preventDefault();
+		var email = $('#login-username').val();
+		var password = $('#login-password').val();
+		Meteor.loginWithPassword(email, password, function(error){
+			if(error){
+				alert(T9n.get(error.reason));
 			}
+		});
+	},
+	'keyup #login-password': function(event){
+		if(event.keyCode == 13){
+			$("#btn-login").click();
+		}
+	},
+	'keyup #login-username': function(event){
+		if(event.keyCode == 13){
+			$("#btn-login").click();
+		}
+	}
+});
+
+Template.navbar.events({
+	'click .logout': function(event){
+		event.preventDefault();
+		Meteor.logout();
+		Router.go('home');
+	}
+});
+
+Template.account.events({
+	'click #updateAccount': function(){
+		var firstName = $('#userFistName').val();
+		var lastName = $('#userLastName').val();
+		if (firstName === "")
+		firstName = Meteor.user().profile.firstName;
+		if (lastName === "")
+		lastName = Meteor.user().profile.lastName;
+		Meteor.call("updateAccount", firstName,lastName);
+		Router.go('home');
+	},
+	'click #cancelUpdateAccount': function() {
+		history.back();
+	},
+	'click #changePassword': function() {
+		Router.go('changePassword');
+	}
+});
+
+Template.changePassword.events({
+	'click #updatePassword': function () {
+		var oldPassword = $('#oldPassword').val();
+		var newPassword = $('#newPassword').val();
+		var repeatedNewPassword = $('#repeatedNewPassword').val();
+		var message = "";
+		if (newPassword !== repeatedNewPassword) {
+			$('#alertMessage').text("Las contraseñas no coindicen");
+			$('#alert').show();
+			return false;
+		}
+		Accounts.changePassword(oldPassword, newPassword, function(error) {
+			if (error) {
+				message = 'Hubo un problema: ' + T9n.get(error.reason);
+			} else {
+				message = 'Cambiaste correctamente tu contraseña'
+			}
+			$('#alertMessage').text(message);
+			$('#alert').show();
+		});
+		$('#oldPassword').val("");
+		$('#newPassword').val("");
+		$('#repeatedNewPassword').val("");
+	},
+	'click #cancelPasswordChange': function(){
+		history.back();
+	}
+});
+
+Template.exportarLogsEstacion.events({
+	"click #export": function() {
+		MyAppExporter.exportAllContacts();
+	},
+	"click #export2": function(){
+		MyAppExporter.exportAllContacts2();
+	}
+});
+
+Template.agregarMarcador.events({
+	"click #guardarNuevoMarcador": function(){
+		var marcadorNuevo = {
+			name: $('.nuevoMarcador #nuevoMarcadorNombre').val(),
+			lat: parseFloat($('.nuevoMarcador #nuevoMarcadorLatitud').val()),
+			long: parseFloat($('.nuevoMarcador #nuevoMarcadorLongitud').val()),
+			aldea: $('.nuevoMarcador #nuevoMarcadorAldea').val(),
+			casa: $('.nuevoMarcador #nuevoMarcadorCasa').val()
+		};
+
+		console.log(marcadorNuevo);
+		Meteor.call("insertarMarcador",marcadorNuevo);
+		clearForm();
+		$('#limpiarCampos').click();
+	},
+	"click #limpiarCampos":function(){
+		clearForm();
+	}
+});
+
+Template.marcadores.helpers({
+	'marcador': function(){
+		return Markers.find();
+	}
+});
+
+Template.marcadores.events({
+	'click #removerMarcador':function(){
+		if(confirm("Estas seguro que desea borrar este marcador?") == true)
+		Meteor.call("removerMarcador",this._id);
+	},
+	'click #modifyMarker':function(){
+		$(".modal-body #modifyMarkerName").val(this.name);
+		$(".modal-body #modifyMarkerAldea").val(this.aldea);
+		$(".modal-body #modifyMarkerCasa").val(this.casa);
+		$(".modal-body #modifyMarkerId").val(this._id);
+		$(".modal-body #modifyMarkerLat").val(this.lat);
+		$(".modal-body #modifyMarkerLong").val(this.long);
+	}
+});
+
+Template.marcadorModal.events({
+	'click #guardarMarcadorMod':function(){
+		var name=$('#modifyMarkerName').val();
+		var aldea=$('#modifyMarkerAldea').val();
+		var casa=$('#modifyMarkerCasa').val();
+		var lat=$('#modifyMarkerLat').val();
+		var long=$('#modifyMarkerLong').val();
+		var id= $('#modifyMarkerId').val();
+		Meteor.call("modificarMarcador",id, name, aldea, casa, lat, long);
+		$('#marcadorModal').modal('hide');
+	}
+});
+
+function clearForm() {
+	$('.nuevoMarcador #nuevoMarcadorNombre').val("");
+	$('.nuevoMarcador #nuevoMarcadorLatitud').val("");
+	$('.nuevoMarcador #nuevoMarcadorLongitud').val("");
+	$('.nuevoMarcador #nuevoMarcadorAldea').val("");
+	$('.nuevoMarcador #nuevoMarcadorCasa').val("");
+};
+
+$(document).ready(function(){
+	$('.filterable .btn-filter').click(function(){
+		var $panel = $(this).parents('.filterable'),
+		$filters = $panel.find('.filters input'),
+		$tbody = $panel.find('.table tbody');
+		if ($filters.prop('disabled') == true) {
+			$filters.prop('disabled', false);
+			$filters.first().focus();
+		} else {
+			$filters.val('').prop('disabled', true);
+			$tbody.find('.no-result').remove();
+			$tbody.find('tr').show();
 		}
 	});
 
-	Template.navbar.events({
-	 'click .logout': function(event){
-	  event.preventDefault();
-	  Meteor.logout();
-	  Router.go('home');
-	}
-	});
-
-	Template.account.events({
-	 'click #updateAccount': function(){
-	  var firstName = $('#userFistName').val();
-	  var lastName = $('#userLastName').val();
-	  if (firstName === "")
-	    firstName = Meteor.user().profile.firstName;
-	  if (lastName === "")
-	    lastName = Meteor.user().profile.lastName;
-	  Meteor.call("updateAccount", firstName,lastName);
-	  Router.go('home');
-	},
-	'click #cancelUpdateAccount': function() {
-	  history.back();
-	},
-	'click #changePassword': function() {
-	  Router.go('changePassword');
-	}
-	});
-
-	Template.changePassword.events({
-	 'click #updatePassword': function () {
-	   var oldPassword = $('#oldPassword').val();
-	   var newPassword = $('#newPassword').val();
-	   var repeatedNewPassword = $('#repeatedNewPassword').val();
-	   var message = "";
-	   if (newPassword !== repeatedNewPassword) {
-	    $('#alertMessage').text("Las contraseñas no coindicen");
-	    $('#alert').show();
-	    return false;
-	  }
-	  Accounts.changePassword(oldPassword, newPassword, function(error) {
-	    if (error) {
-	      message = 'Hubo un problema: ' + T9n.get(error.reason);
-	    } else {
-	      message = 'Cambiaste correctamente tu contraseña'
-	    }
-	    $('#alertMessage').text(message);
-	    $('#alert').show();
-	  });
-	  $('#oldPassword').val("");
-	  $('#newPassword').val("");
-	  $('#repeatedNewPassword').val("");
-	},
-	'click #cancelPasswordChange': function(){
-	  history.back();
-	}
-	});
-
-	Template.exportarLogsEstacion.events({
- 		"click #export": function() {
- 			MyAppExporter.exportAllContacts();
- 		},
- 		"click #export2": function(){
- 			MyAppExporter.exportAllContacts2();
- 		}
- 	});
-
- 	Template.agregarMarcador.events({
- 		"click #guardarNuevoMarcador": function(){
-			var marcadorNuevo = {
- 				name: $('.nuevoMarcador #nuevoMarcadorNombre').val(),
- 				lat: parseFloat($('.nuevoMarcador #nuevoMarcadorLatitud').val()),
- 				long: parseFloat($('.nuevoMarcador #nuevoMarcadorLongitud').val()),
- 				aldea: $('.nuevoMarcador #nuevoMarcadorAldea').val(),
- 				casa: $('.nuevoMarcador #nuevoMarcadorCasa').val()
- 			};
-
- 			console.log(marcadorNuevo);
- 			Meteor.call("insertarMarcador",marcadorNuevo);
- 			clearForm();
- 			$('#limpiarCampos').click();
- 		},
- 		"click #limpiarCampos":function(){
- 			clearForm();
- 		}
- 	});
-
- 	Template.marcadores.helpers({
- 		'marcador': function(){
- 			return Markers.find();
- 		}
- 	});
-
- 	Template.marcadores.events({
- 		'click #removerMarcador':function(){
- 			if(confirm("Estas seguro que desea borrar este marcador?") == true)
- 				Meteor.call("removerMarcador",this._id);
- 		},
- 		'click #modifyMarker':function(){
- 			$(".modal-body #modifyMarkerName").val(this.name);
-			$(".modal-body #modifyMarkerAldea").val(this.aldea);
-			$(".modal-body #modifyMarkerCasa").val(this.casa);
-			$(".modal-body #modifyMarkerId").val(this._id);
-			$(".modal-body #modifyMarkerLat").val(this.lat);
-			$(".modal-body #modifyMarkerLong").val(this.long);
- 		}
- 	});
-
- 	Template.marcadorModal.events({
- 		'click #guardarMarcadorMod':function(){
- 			var name=$('#modifyMarkerName').val();
- 			var aldea=$('#modifyMarkerAldea').val();
- 			var casa=$('#modifyMarkerCasa').val();
- 			var lat=$('#modifyMarkerLat').val();
- 			var long=$('#modifyMarkerLong').val();
- 			var id= $('#modifyMarkerId').val();
- 			Meteor.call("modificarMarcador",id, name, aldea, casa, lat, long);
- 			$('#marcadorModal').modal('hide');
- 		}
- 	});
-
- 	function clearForm() {
-	    $('.nuevoMarcador #nuevoMarcadorNombre').val("");
-	    $('.nuevoMarcador #nuevoMarcadorLatitud').val("");
-	    $('.nuevoMarcador #nuevoMarcadorLongitud').val("");
-	    $('.nuevoMarcador #nuevoMarcadorAldea').val("");
-	    $('.nuevoMarcador #nuevoMarcadorCasa').val("");
-	};
-
-	$(document).ready(function(){
-		$('.filterable .btn-filter').click(function(){
-			var $panel = $(this).parents('.filterable'),
-			$filters = $panel.find('.filters input'),
-			$tbody = $panel.find('.table tbody');
-			if ($filters.prop('disabled') == true) {
-				$filters.prop('disabled', false);
-				$filters.first().focus();
-			} else {
-				$filters.val('').prop('disabled', true);
-				$tbody.find('.no-result').remove();
-				$tbody.find('tr').show();
-			}
+	$('.filterable .filters input').keyup(function(e){
+		/* Ignore tab key */
+		var code = e.keyCode || e.which;
+		if (code == '9') return;
+		/* Useful DOM data and selectors */
+		var $input = $(this),
+		inputContent = $input.val().toLowerCase(),
+		$panel = $input.parents('.filterable'),
+		column = $panel.find('.filters th').index($input.parents('th')),
+		$table = $panel.find('.table'),
+		$rows = $table.find('tbody tr');
+		/* Dirtiest filter function ever ;) */
+		var $filteredRows = $rows.filter(function(){
+			var value = $(this).find('td').eq(column).text().toLowerCase();
+			return value.indexOf(inputContent) === -1;
 		});
-
-		$('.filterable .filters input').keyup(function(e){
-			/* Ignore tab key */
-			var code = e.keyCode || e.which;
-			if (code == '9') return;
-			/* Useful DOM data and selectors */
-			var $input = $(this),
-			inputContent = $input.val().toLowerCase(),
-			$panel = $input.parents('.filterable'),
-			column = $panel.find('.filters th').index($input.parents('th')),
-			$table = $panel.find('.table'),
-			$rows = $table.find('tbody tr');
-			/* Dirtiest filter function ever ;) */
-			var $filteredRows = $rows.filter(function(){
-				var value = $(this).find('td').eq(column).text().toLowerCase();
-				return value.indexOf(inputContent) === -1;
-			});
-			/* Clean previous no-result if exist */
-			$table.find('tbody .no-result').remove();
-			/* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
-			$rows.show();
-			$filteredRows.hide();
-			/* Prepend no-result row if all rows are filtered */
-			if ($filteredRows.length === $rows.length) {
-				$table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="'+ $table.find('.filters th').length +'">No result found</td></tr>'));
-			}
-		});
+		/* Clean previous no-result if exist */
+		$table.find('tbody .no-result').remove();
+		/* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
+		$rows.show();
+		$filteredRows.hide();
+		/* Prepend no-result row if all rows are filtered */
+		if ($filteredRows.length === $rows.length) {
+			$table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="'+ $table.find('.filters th').length +'">No result found</td></tr>'));
+		}
 	});
+});
 
 
- 	MyAppExporter = {
- 		exportAllContacts: function() {
- 			var self = this;
- 			Meteor.call("exportAllContacts", function(error, data) {
+MyAppExporter = {
+	exportAllContacts: function() {
+		var self = this;
+		Meteor.call("exportAllContacts", function(error, data) {
 
- 				if ( error ) {
- 					alert(error); 
- 					return false;
- 				}
+			if ( error ) {
+				alert(error);
+				return false;
+			}
 
- 				var csv = Papa.unparse(data);
- 				self._downloadCSV(csv);
- 			});
- 		},
- 		exportAllContacts2: function() {
- 			var self = this;
- 			Meteor.call("exportAllContacts2", function(error, data) {
+			var csv = Papa.unparse(data);
+			self._downloadCSV(csv);
+		});
+	},
+	exportAllContacts2: function() {
+		var self = this;
+		Meteor.call("exportAllContacts2", function(error, data) {
 
- 				if ( error ) {
- 					alert(error); 
- 					return false;
- 				}
+			if ( error ) {
+				alert(error);
+				return false;
+			}
 
- 				var csv = Papa.unparse(data);
- 				self._downloadCSV2(csv);
- 			});
- 		},
- 		exportContact: function(id) {
- 			var self = this;
- 			Meteor.call("exportContact", id, function(error, data) {
+			var csv = Papa.unparse(data);
+			self._downloadCSV2(csv);
+		});
+	},
+	exportContact: function(id) {
+		var self = this;
+		Meteor.call("exportContact", id, function(error, data) {
 
- 				if ( error ) {
- 					alert(error); 
- 					return false;
- 				}
+			if ( error ) {
+				alert(error);
+				return false;
+			}
 
- 				var csv = Papa.unparse(data);
- 				self._downloadCSV(csv);
- 			});
- 		},
+			var csv = Papa.unparse(data);
+			self._downloadCSV(csv);
+		});
+	},
 
- 		_downloadCSV: function(csv) {
- 			var blob = new Blob([csv]);
- 			var a = window.document.createElement("a");
- 			a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
- 			fecha=moment.utc().format("DD/MM/YYYY");
- 			a.download = "Datos_Estacion_"+fecha+".csv";
- 			document.body.appendChild(a);
- 			a.click();
- 			document.body.removeChild(a);
- 		},
- 		_downloadCSV2: function(csv) {
- 			var blob = new Blob([csv]);
- 			var a = window.document.createElement("a");
- 			a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
- 			fecha=moment.utc().format("DD/MM/YYYY");
- 			a.download = "Datos_Detecciones_" +fecha+".csv";
- 			document.body.appendChild(a);
- 			a.click();
- 			document.body.removeChild(a);
- 		}
- 	}
+	_downloadCSV: function(csv) {
+		var blob = new Blob([csv]);
+		var a = window.document.createElement("a");
+		a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+		fecha=moment.utc().format("DD/MM/YYYY");
+		a.download = "Datos_Estacion_"+fecha+".csv";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	},
+	_downloadCSV2: function(csv) {
+		var blob = new Blob([csv]);
+		var a = window.document.createElement("a");
+		a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+		fecha=moment.utc().format("DD/MM/YYYY");
+		a.download = "Datos_Detecciones_" +fecha+".csv";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	}
+}
 }

@@ -4,7 +4,7 @@ body{
 
 div.container4 {
   height: 10em;
-  position: relative 
+  position: relative
 }
 
 div.container4 p {
@@ -25,6 +25,21 @@ div.container4 h1 {
   transform: translate(-50%, -50%)
 }
 
+.map-container {
+  height: 400px;
+  margin: auto;
+  margin-left: 50px;
+  margin-bottom: 10px;
+}
+
+.map-container2 {
+  height: 400px;
+  margin: auto;
+  margin-left: 50px;
+  margin-bottom: 10px;
+}
+
+/*
 #map-canvas1 {
   height: 400px;
   margin: auto;
@@ -43,8 +58,10 @@ div.container4 h1 {
   height: 400px;
   margin: auto;
   margin-left: 50px;
-  margin-bottom: 10px; 
+  margin-bottom: 10px;
 }
+*/
+
 
 .navbar-right {
     margin-right: 25px;
