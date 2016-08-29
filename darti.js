@@ -47,31 +47,33 @@ Router.route('/account', {
 });
 
 Router.route('/inbound', function () {
-  var req = this.request;
-  var res = this.response;
+	var req = this.request;
+	var res = this.response;
 
-  var rawEmail = JSON.stringify(req.body.toString());
-  var emailSubjectSub = rawEmail.substring(rawEmail.search("Subject: ") + 9);
-  var emailSubject = emailSubjectSub.substring(0, emailSubjectSub.indexOf('\\n'));
-  var emailBodySub = rawEmail.substring(rawEmail.search("ltr") + 6);
-  var emailBody = emailBodySub.substring(0, emailBodySub.indexOf('<'));
-  var emailDateSub = rawEmail.substring(rawEmail.search("Date: ") + 6);
-  var emailDate = emailDateSub.substring(0, emailDateSub.indexOf('\\n'));
-  console.log(emailSubject);
-  console.log(emailBody);
-  console.log(emailDate);
-  res.statusCode = 200;
-  res.end('email received\n');
-
-
-  Inbound.insert({
-      Subject: emailSubject,
-      Body: emailBody,
-      Date: emailDate,
-  });
-
-  console.log("HOLA " + Inbound.Body);
-
+	var rawEmail = JSON.stringify(req.body.toString());
+	var emailSubjectSub = rawEmail.substring(rawEmail.search("Subject: ") + 9);
+	var emailSubject = emailSubjectSub.substring(0, emailSubjectSub.indexOf('\\n'));
+	var emailBodySub = rawEmail.substring(rawEmail.search("ltr") + 6);
+	var emailBody = emailBodySub.substring(0, emailBodySub.indexOf('<'));
+	var emailDateSub = rawEmail.substring(rawEmail.search("Date: ") + 6);
+	var emailDate = emailDateSub.substring(0, emailDateSub.indexOf('\\n'));
+	console.log(emailSubject);
+	console.log(emailBody);
+	console.log(emailDate);
+	res.statusCode = 200;
+	res.end('email received\n');
+	if (emailSubject=="trampas"){
+		var mensaje1=String(emailBody);
+		var mensaje2=mensaje1.slice(1,-1);
+		var mensaje3= mensaje2.split("#");
+		Inbound.insert({
+			Body: emailBody,
+			Aldea: mensaje3[0],
+			Casa:mensaje3[1],
+			Sensor:mensaje3[2],
+			Date: emailDate,
+		});
+	}
 }, {where: 'server'});
 
 
@@ -182,15 +184,16 @@ if (Meteor.isServer) {
 			Datos.insert(ayuda);
 		},
 		'updateAccount': function (name, lastname) {
-      	var user = Meteor.users.findOne(this.userId);
-      	var profile = user.profile;
-      	profile.firstName = name;
-      	profile.lastName = lastname;
-      	Meteor.users.update(Meteor.userId(), {$set: {profile: profile}});
-      }
-		/*'ultimaDeteccion':function(){
+	      	var user = Meteor.users.findOne(this.userId);
+	      	var profile = user.profile;
+	      	profile.firstName = name;
+	      	profile.lastName = lastname;
+	      	Meteor.users.update(Meteor.userId(), {$set: {profile: profile}});
+      	},
+		'ultimaDeteccion':function(){
 			return Logs.findOne({}, {sort: {fecha: -1, limit: 1}})
-		},
+		}
+		/*
 		'cantidadEntradas':function(){
 			return Logs.find().count()!=0;
 		}*/
@@ -208,6 +211,7 @@ if (Meteor.isClient) {
 	Meteor.subscribe ('Datos');
 	Meteor.subscribe ('Logs');
 	Meteor.subscribe ('Get');
+	Meteor.subscribe ('Inbound');
 
 	Template.mapview1.onRendered(function () {
 		var mapOptions = {
@@ -267,10 +271,10 @@ if (Meteor.isClient) {
 			Logs.update(ultimaDeteccion._id,{
 				$set:{ack:true},
 			});*/
-    		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+    		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
   		});
   		marker2.addListener('click', function() {
-	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
   		});
 	}); 
 
@@ -323,7 +327,7 @@ if (Meteor.isClient) {
 
 	Template.todo.helpers({
 		'log':function(){
-			return Logs.find({}, {sort: {createdAt: -1} })
+			return Inbound.find({}, {sort: {createdAt: -1} })
 		},
 		'getDatos':function(){
 			return Datos.findOne({}, {sort: {fecha: -1, limit: 1}});
