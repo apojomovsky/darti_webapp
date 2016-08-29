@@ -24,14 +24,9 @@
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="{{pathFor route='home'}}">Principal</a></li>
 					{{#if currentUser}}
+					<li><a href="/informes">Informes</a></li>
 					<li><a href="/usuarios">Usuarios</a></li>
 					<li><a href="/configuracion">Configuración</a></li>
-					<li class = "dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Informes<span class="caret"></span></a>
-						<ul class="dropdown-menu">
-							<li><a href="/exportarLogsEstacion">Descargar CSV</a></li>
-						</ul>
-					</li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Marcadores<span class="caret"></span></a>
 						<ul class="dropdown-menu">
@@ -249,60 +244,116 @@
 	</div>
 	<div class= "row">
 		<div class="col-md-9">
-			<label>Historial de Detecciones</label>
+			<label>Historial de Eventos Recientes</label>
 			<textarea class="form-control" name="message" placeholder="Historial" rows="5" id = "logs">{{#each log}}Fecha: {{this.Date}} Aldea: {{this.Aldea}} Casa: {{this.Casa}} Sensor: {{this.Sensor}}
 {{/each}}</textarea>
 		</div>
 		<div class="col-md-3">
-		<label>Estación Meteorológica</label>
+		<label>GET info</label>
 		<textarea class="form-control" name="message" placeholder="GET info" rows="5" id = "GET">{{#with getDatos}}Fecha: {{fecha}}
-Dirección del viento: {{dirviento}}
-Velocidad del viento: {{velviento}}
-Precipitaciones: {{lluvia}}
-Temperatura Externa: {{temp_ext}}
-Temperatura Interna: {{temp_int}}
-Humedad: {{humedad}}
-Presión: {{presion}}
-Coordenadas GPS: {{gps}}
-Fuente: {{fuente}}
-Estado: {{estado}}
-{{/with}}</textarea>
+Temperatura: {{temperatura1}}
+Viento: {{viento1}}
+Humedad:{{humedad1}}
+Presión:{{presion1}}{{/with}}</textarea>
 		</div>
 	</div>
 </template>
 
-<template name="exportarLogsEstacion">
-	<button id="export">Estacion Meteorologica</button>
-	<button id="export2">Historial de Detecciones</button>
+<template name = "marcadores">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="panel panel-success">
+			<div class="input-group"> <span class="input-group-addon">Filter</span>
+				<input id="filter" type="text" class="form-control" placeholder="Type here...">
+			</div>
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th class = "text-left">Nombre</th>
+						<th class = "text-left">Aldea</th>
+						<th class = "text-left">Casa</th>
+						<th class = "text-center">Latitud</th>
+						<th class = "text-center">Longitud</th>
+					</tr>
+				</thead>
+				<tbody class="searchable">
+					{{#each punto}}
+					<tr>
+						<td>{{sum 1 @index}}</td>
+						<td>{{this.name}}</td>
+						<td>{{this.aldea}}</td>
+						<td>{{this.casa}}</td>
+						<td>{{this.lat}}</td>
+						<td>{{this.long}}</td>
+						<td><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#marcadoresModal" id="modifyMarker">Modificar</button></td>
+						<td><button type="button" class="btn btn-danger btn-xs" id="removeMarker"><span class="glyphicon glyphicon-remove"></span></button></td>
+					</tr>
+					{{/each}}	
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{{> marcadoresModal}}
 </template>
 
-<template name="marcadores">
-	<div class="col-md-8 col-md-offset-2">
-	
+<template name = "marcadoresModal">
+	<div class="modal fade" id="clientModal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Modificar Marcador</h4>
+				</div>
+				<div class="modal-body">					
+					<div class="form-group">
+						<label>Nombre</label>
+						<input type="text" class="form-control" id="modifyMarkerName">
+						<input type="text" class="form-control" id ="modifyMarkerId" hidden="true">					
+					</div>
+					<div class="form-group">
+						<label>Aldea</label>
+						<input type="text" class="form-control" id="modifyMarkerAldea">
+					</div>	
+					<div class="form-group">
+						<label>Casa</label>
+						<input type="text" class="form-control" id="modifyMarkerCasa">
+					</div>
+					<a class="btn btn-default" href="#" id="modifyClientLink" role="button">Modificar Coordenadas</a>			
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" id ="saveClientModify">Guardar</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
-<template name="agregarMarcador">
+<template name= "agregarMarcador">
 	<div class="row">
 		<div class="col-md-4">
-			<form class = "nuevoMarcador">
+			<form class = "addMarker">
 				<label>Nombre</label>
-				<input type="text" class="form-control" placeholder="Nombre" id="nuevoMarcadorNombre">
+				<input type="text" class="form-control" placeholder="Nombre" id="newMarker">
 				<label>Latitud</label>
-				<input type="text" class="form-control" placeholder="Latitud" id="nuevoMarcadorLatitud">
+				<input type="text" class="form-control" placeholder="Latitud" id="newMarkerLat">
 				<label>Longitud</label>
-				<input type="text" class="form-control" placeholder="Longitud" id="nuevoMarcadorLongitud">
+				<input type="text" class="form-control" placeholder="Longitud" id="newMarkerLong">
 				<label>Aldea</label>
-				<input type="number" class="form-control" placeholder="Aldea" id="nuevoMarcadorAldea">
+				<input type="number" class="form-control" placeholder="Aldea" id="newMarkerAldea">
 				<label>Casa</label>
-				<input type="number" class="form-control" placeholder="Casa" id="nuevoMarcadorCasa">
+				<input type="number" class="form-control" placeholder="Casa" id="newMarkerCasa">
 				<br>
-				<button type="button" class="btn btn-primary" id="guardarNuevoMarcador">Guardar</button>
-				<button type="button" class="btn btn-primary" id="limpiarCampos">Limpiar Campos</button>
-				<button type="button" class="btn btn-primary" id="cancel">Cancelar</button>
+				<button type="button" class="btn btn-primary" id ="saveNewMarker">Guardar</button>
+				<button type="button" class="btn btn-primary" id ="clearFields">Limpiar Campos</button>
+				<button type="button" class="btn btn-primary" id ="cancel">Cancelar</button>
 			</form>
 		</div>
 	</div>
+</template>
+
+<template name="informes">
+	<h1>Esta es la pagina de informes</h1>
 </template>
 
 <template name="usuarios">
@@ -311,4 +362,8 @@ Estado: {{estado}}
 
 <template name="configuracion">
 	<h1>Esta es la pagina de configuracion</h1>
+</template>
+
+<template name="datos">
+	<h1>Acaba de ingresar datos GET</h1>
 </template>
