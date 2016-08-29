@@ -77,13 +77,18 @@
 	<div class= "row">
 		<div class="col-md-9">
 			<label>Historial de Eventos Recientes</label>
-			<textarea class="form-control" name="message" placeholder="Historial" rows="5" id = "logs">{{#each log}}Aldea: {{this.aldea}} Casa: {{this.casa}} Sensor: {{this.sensor}}
+			<textarea class="form-control" name="message" placeholder="Historial" rows="5" id = "logs">{{#each log}}Fecha: {{this.fecha}} Aldea: {{this.aldea}} Casa: {{this.casa}} Sensor: {{this.sensor}}
 {{/each}}
 			</textarea>
 		</div>
 		<div class="col-md-3">
 		<label>GET info</label>
-		<textarea class="form-control" name="message" placeholder="GET info" rows="5" id = "GET">{{getInfo}}</textarea>
+		<textarea class="form-control" name="message" placeholder="GET info" rows="5" id = "GET">
+Fecha: {{fecha}}
+Temperatura: {{temperatura}}
+Viento: {{viento}}
+Humedad:{{humedad}}
+Presion:{{presion}} </textarea>
 		</div>
 	</div>
 </template>
@@ -98,4 +103,8 @@
 
 <template name="configuracion">
 	<h1>Esta es la pagina de configuracion</h1>
+</template>
+
+<template name="datos">
+	<h1>Esta es la pagina de datos</h1>
 </template>
