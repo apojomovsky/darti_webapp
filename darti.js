@@ -3,6 +3,9 @@ Datos= new Meteor.Collection("Datos");
 Logs= new Meteor.Collection("Logs");
 Get= new Meteor.Collection("Get");
 
+//Variables globales
+var control;
+
 Router.configure({
 	layoutTemplate:'main'
 });
@@ -95,23 +98,41 @@ if (Meteor.isServer) {
 						casa:mensaje3[1],
 						sensor:mensaje3[2],
 						mailId:message._id,
-						contenido:mensaje3,
+						//contenido:mensaje3,
 						remitente:message.from,
 						fecha:message.date
 					});
 				}
+				var ultimaDeteccion = Logs.findOne({}, {sort: {fecha: -1, limit: 1}});
+		var cantidadEntradas= Logs.find().count();
+		console.log("entradas " + cantidadEntradas);
+		console.log("aldea " +ultimaDeteccion.aldea);
+		console.log("casa "+ultimaDeteccion.casa);
+		if(cantidadEntradas!=0){
+			if(ultimaDeteccion.aldea==1 && ultimaDeteccion.casa==1 && ultimaDeteccion.ack==false){
+				console.log("Aldea 1, Casa 1 con actividad");
+				Logs.update({_id : ultimaDeteccion._id},{
+					$set:{ack:true}
+				});
+				control=1;
+			}
+		}
 			});
 		}
 	});
 
+	
+
 	return Meteor.methods({
 		'cargarDatosGet': function(ayuda){
 			Datos.insert(ayuda);
-		},
-		'ultimaDeteccion':function(){
-			var loco=Logs.findOne({}, {sort: {fecha: -1, limit: 1}});
-			return loco;
 		}
+		/*'ultimaDeteccion':function(){
+			return Logs.findOne({}, {sort: {fecha: -1, limit: 1}})
+		},
+		'cantidadEntradas':function(){
+			return Logs.find().count()!=0;
+		}*/
 	});
 
 }
@@ -162,15 +183,39 @@ if (Meteor.isClient) {
 		});
 		marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
 		//Rutina de evento "click" en el mapa
-		//var ultimaDeteccion= Logs.findOne({}, {sort: {fecha: -1, limit: 1}}).fetch();
-		console.log(Logs.findOne({}, {sort: {fecha: -1, limit: 1}}));
-		if(Logs.find().count()!=0){
-			if(ultimaDeteccion.aldea===1 && ultimaDeteccion.casa===1 && ultimaDeteccion.ack===false){
+		//Logs.findOne({}, {sort: {fecha: -1, limit: 1}}).fetch()
+		/*var ultimaDeteccion;
+		Meteor.call ("ultimaDeteccion", function(error,result){
+			if(error){
+				console.log(error);
+			} else{
+				Session.set("ultimaDeteccion",result)
+			}
+		});
+		var datoUtil=Session.get("ultimaDeteccion");
+		console.log(datoUtil);
+
+		var la;
+		Meteor.call("cantidadEntradas", function(error,result){
+			if(error){
+				console.log(error);
+			} else{
+				Session.set("la",result)
+			}
+		});
+
+		if(Session.get("la")){
+			if(datoUtil.aldea===1 && datoUtil.casa===1 && datoUtil.ack===false){
 				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
 			}
-			if(ultimaDeteccion.aldea===1 && ultimaDeteccion.casa===2 && ultimaDeteccion.ack===false){
+			if(datoUtil.aldea===1 && datoUtil.casa===2 && datoUtil.ack===false){
 				marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
 			}
+		}*/
+		console.log("Control = " +control); 
+		if (control==1){
+			marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+			control=0;
 		}
 		marker.addListener('click', function() {
 			/*console.log(Logs.findOne({}, {sort: {fecha: -1, limit: 1}}));
@@ -183,12 +228,6 @@ if (Meteor.isClient) {
 	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
   		});
 	}); 
-
-	/*Template.mapview1.helpers({
-		'ultimo':function(){
-			return Logs.findOne({}, {sort: {fecha: -1, limit: 1}})
-		}
-	});*/
 
 	Template.mapview2.onRendered(function () {
 		/*Logs.insert({
