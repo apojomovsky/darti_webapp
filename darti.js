@@ -93,6 +93,7 @@ Router.route('/inbound', function () {
 	var res = this.response;
 
 	var rawEmail = JSON.stringify(req.body.toString());
+	console.log(rawEmail);
 	var emailSubjectSub = rawEmail.substring(rawEmail.search("Subject: ") + 9);
 	var emailSubject = emailSubjectSub.substring(0, emailSubjectSub.indexOf('\\n'));
 	var emailBodySub = rawEmail.substring(rawEmail.search("ltr") + 6);
@@ -103,8 +104,11 @@ Router.route('/inbound', function () {
 	res.end('email received\n');
 	if (emailSubject=="trampas"){
 		var mensaje1=String(emailBody);
+		console.log(mensaje1);
 		var mensaje2=mensaje1.slice(1,-1);
+		console.log(mensaje2);
 		var mensaje3= mensaje2.split("#");
+		console.log(mensaje3);
 		Inbound.insert({
 			Body: emailBody,
 			Aldea: mensaje3[0],
