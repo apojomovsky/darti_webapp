@@ -47,6 +47,16 @@ Router.route('/usuarios',{
 	template:'usuarios'
 });
 
+Router.route('/marcadores',{
+	name:'marcadores',
+	template:'marcadores'
+});
+
+Router.route('/agregarMarcador',{
+	name:'agregarMarcador',
+	template:'agregarMarcador'
+});
+
 Router.route('/configuracion',{
 	name:'configuracion',
 	template:'configuracion'
@@ -161,6 +171,9 @@ if (Meteor.isServer) {
       	},
 		'ultimaDeteccion':function(){
 			return Inbound.findOne({}, {sort: {Date: -1, limit: 1}});
+		},
+		'insertarMarcador':function(uno){
+			Markers.insert(uno);
 		},
 		exportAllContacts: function() {		
 		var fields = [
@@ -456,6 +469,40 @@ if (Meteor.isClient) {
  			MyAppExporter.exportAllContacts2();
  		}
  	});
+
+ 	Template.agregarMarcador.events({
+ 		"click #guardarNuevoMarcador": function(){
+ 			var nombreMarcador = $('.nuevoMarcador #nuevoMarcadorNombre').val();
+ 			var latitudMarcador = parseFloat($('.nuevoMarcador #nuevoMarcadorLatitud').val());
+ 			var longitudMarcador = parseFloat($('.nuevoMarcador #nuevoMarcadorLongitud').val());
+ 			var  aldeaMarcador = $('.nuevoMarcador #nuevoMarcadorAldea').val();
+ 			var casaMarcador = $('.nuevoMarcador #nuevoMarcadorCasa').val();
+
+ 			var marcadorNuevo = {
+ 				name: nombreMarcador,
+ 				lat: latitudMarcador,
+ 				long: longitudMarcador,
+ 				aldea: aldeaMarcador,
+ 				casa: casaMarcador
+ 			};
+
+ 			console.log(marcadorNuevo);
+ 			Meteor.call("insertarMarcador",marcadorNuevo);
+ 			clearForm();
+ 			$('#limpiarCampos').click();
+ 		},
+ 		"click #limpiarCampos":function(){
+ 			clearForm();
+ 		}
+ 	});
+
+ 	function clearForm() {
+	    $('.nuevoMarcador #nuevoMarcadorNombre').val("");
+	    $('.nuevoMarcador #nuevoMarcadorLatitud').val("");
+	    $('.nuevoMarcador #nuevoMarcadorLongitud').val("");
+	    $('.nuevoMarcador #nuevoMarcadorAldea').val("");
+	    $('.nuevoMarcador #nuevoMarcadorCasa').val("");
+	};
 
  	MyAppExporter = {
  		exportAllContacts: function() {
