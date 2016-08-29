@@ -3,6 +3,8 @@ Datos= new Meteor.Collection("Datos");
 //Logs= new Meteor.Collection("Logs");
 Get= new Meteor.Collection("Get");
 Inbound = new Meteor.Collection("Inbound");
+Maps = new Meteor.Collection("Maps");
+Markers = new Mongo.Collection('Markers');
 
 Router.configure({
 	layoutTemplate:'main'
@@ -13,10 +15,27 @@ Router.route('/',{
 	template:'home'
 });
 
-Router.route('/datos',{
-	name:'datos',
-	template:'datos'
-});
+Router.route("datos", function() {
+  var query = this.request.query;
+  this.response.statusCode = 200;
+  this.response.end('Recibido');
+  ayuda={
+	  dirviento:query.dirviento,
+	  velviento:query.velviento,
+	  lluvia:query.lluvia,
+	  temp_ext:query.temp_ext,
+	  temp_int:query.temp_int,
+	  humedad:query.humedad,
+	  presion:query.presion,
+	  gps:query.gps,
+	  fuente:query.fuente,
+	  estado:query.estado,
+	  fecha:new Date()
+  };
+  Meteor.call("cargarDatosGet",ayuda);
+  console.log(query);
+  // Do something with our found user here (see below).
+}, { where: "server" });
 
 Router.route('/informes',{
 	name:'informes',
@@ -31,6 +50,11 @@ Router.route('/usuarios',{
 Router.route('/configuracion',{
 	name:'configuracion',
 	template:'configuracion'
+});
+
+Router.route('/exportarLogsEstacion',{
+	name:'exportarLogsEstacion',
+	template:'exportarLogsEstacion'
 });
 
 Router.route('/account', {
@@ -57,9 +81,6 @@ Router.route('/inbound', function () {
 	var emailBody = emailBodySub.substring(0, emailBodySub.indexOf('<'));
 	var emailDateSub = rawEmail.substring(rawEmail.search("Date: ") + 6);
 	var emailDate = emailDateSub.substring(0, emailDateSub.indexOf('\\n'));
-	console.log(emailSubject);
-	console.log(emailBody);
-	console.log(emailDate);
 	res.statusCode = 200;
 	res.end('email received\n');
 	if (emailSubject=="trampas"){
@@ -77,19 +98,36 @@ Router.route('/inbound', function () {
 	}
 }, {where: 'server'});
 
+T9n.setLanguage('es');
+T9n.map('es', {
+    "User not found": "Usuario no encontrado",
+    "Match failed": "Por favor introduzca su usuario y contraseña",
+    "Incorrect password": "Contraseña equivocada",
+    "Email already exists.": "Ya existe un usuario registrado con este correo",
+    "Need to set a username or email": "Por favor introduzca su direccion de correo",
+    "Password may not be empty": "Por favor introduzca su contraseña"
+});
 
 if (Meteor.isServer) {
+    if (Markers.find({}).count() === 0) {
+        Markers.insert({
+			lat: -25.305609,
+			lng: -57.560252,
+			map: "mapa1",
+
+        });
+        Markers.insert({
+            'translation': 'en_US',
+            'value1': 'translation1',
+            'value2': 'translation2'
+        });
+    }
 	Meteor.startup(function () {
 		Meteor.publish('Datos',function(){
 			//var currentUserId=this.userId;
 			//return Datos.find({createdBy: currentUserId})
 			return Datos.find()
 		});
-		/*Meteor.publish('Logs',function(){
-			//var currentUserId=this.userId;
-			//return Logs.find({createdBy: currentUserId})
-			return Logs.find()
-		});*/
 		Meteor.publish('Get',function(){
 			//var currentUserId=this.userId;
 			//return Logs.find({createdBy: currentUserId})
@@ -103,82 +141,12 @@ if (Meteor.isServer) {
 	});
 
 	Router.configureBodyParsers = function(){
-    //Router.onBeforeAction( Iron.Router.bodyParser.json(), {except: ['inbound'], where: 'server'});
-    // Enable incoming XML requests for creditReferral route
     	Router.onBeforeAction( Iron.Router.bodyParser.raw({type: '*/*', only: ['inbound'],
     		verify: function(req, res, body){
     		req.rawBody = body.toString();
     	}, where: 'server'}));
-    //Router.onBeforeAction( Iron.Router.bodyParser.urlencoded({ extended: false }), {where: 'server'});
-};
-	
-	/*var gmailClients = {};
-	Meteor.users.find().observe({
-		added: function (doc) {
-			var googleConf =
-			ServiceConfiguration.configurations.findOne({service: 'google'});
+	};
 
-			var google = doc.services.google;
-
-			gmailClients[doc._id] = new GMail.Client({
-				clientId: googleConf.clientId,
-				clientSecret: googleConf.secret,
-		        accessToken: google.accessToken,
-		        expirationDate: google.expiresAt,
-		        refreshToken: google.refreshToken
-    		});
-
-			gmailClients[doc._id].onNewEmail('subject:trampas', function (message) {
-				//console.log(message.snippet, message.to, message.from, message.subject);
-				console.log(message.snippet, message.from);
-				console.log(message.date);
-				var mensaje=message.snippet;
-				var mensaje1=String(mensaje);
-				var mensaje2=mensaje1.slice(1,-1);
-				var mensaje3= mensaje2.split("#");
-				/*if(Logs.find().count()!=0){
-					Logs.insert({
-							ack:false,
-							aldea:mensaje3[0],
-							casa:mensaje3[1],
-							sensor:mensaje3[2],
-							mailId:message._id,
-							contenido:mensaje3,
-							remitente:message.from,
-							fecha:message.date
-						});
-				}
-				if (message._id!=Logs.findOne({mailId:message._id})){
-					Logs.insert({
-						ack:false,
-						aldea:mensaje3[0],
-						casa:mensaje3[1],
-						sensor:mensaje3[2],
-						mailId:message._id,
-						//contenido:mensaje3,
-						remitente:message.from,
-						fecha:message.date
-					});
-				}
-				var ultimaDeteccion = Logs.findOne({}, {sort: {fecha: -1, limit: 1}});
-		var cantidadEntradas= Logs.find().count();
-		console.log("entradas " + cantidadEntradas);
-		console.log("aldea " +ultimaDeteccion.aldea);
-		console.log("casa "+ultimaDeteccion.casa);
-		if(cantidadEntradas!=0){
-			if(ultimaDeteccion.aldea==1 && ultimaDeteccion.casa==1 && ultimaDeteccion.ack==false){
-				console.log("Aldea 1, Casa 1 con actividad");
-				Logs.update({_id : ultimaDeteccion._id},{
-					$set:{ack:true}
-				});
-				control=1;
-			}
-		}
-			});
-		}
-	});*/
-
-	
 
 	return Meteor.methods({
 		'cargarDatosGet': function(ayuda){
@@ -194,26 +162,65 @@ if (Meteor.isServer) {
 		'ultimaDeteccion':function(){
 			return Inbound.findOne({}, {sort: {Date: -1, limit: 1}});
 		},
-		'cargarUltimo':function(){
-			
+		exportAllContacts: function() {		
+		var fields = [
+			"Direccion del Viento",
+			"Velocidad del Viente",
+			"Lluvia",
+			"Temperatura Exterior",
+			"Temperatura Interior",
+			"Humedad",
+			"Presion",
+			"GPS",
+			"Fuente",
+			"Estado",
+			"Fecha"			
+		];
+ 
+		var data = [];		
+ 
+		var logs = Datos.find().fetch();
+		_.each(logs, function(c) {
+			data.push([
+				c.dirviento,
+				c.velviento,
+				c.lluvia,				
+				c.temp_ext,
+				c.temp_int,
+				c.humedad,
+				c.presion,
+				c.gps,
+				c.fuente,
+				c.estado,
+				moment.utc(c.fecha).format("DD/MM/YYYY")
+			]);
+		});
+ 
+		return {fields: fields, data: data};
+		},
+		'updateAck':function(id){
+			Inbound.update(id,{$set: {
+					Ack:true
+			}
+			});
 		}
-		/*
-		'cantidadEntradas':function(){
-			return Logs.find().count()!=0;
-		}*/
 	});
 
+	Inbound.find().observeChanges({
+	  added: function() {
+	    console.log("Se agrego algo a la BD!")
+	  },
+	  changed: function() {
+	    console.log("Se cambio algo de la BD!")
+	  },
+	  removed: function() {
+	    console.log("Se quito algo a la BD!")
+	  }
+	});
 }
 
 if (Meteor.isClient) {
-	/*Accounts.ui.config({
-	    requestOfflineToken: { google: true },
-	    forceApprovalPrompt: { google: true },
-	    requestPermissions: { google: ["https://www.googleapis.com/auth/gmail.readonly"] }
-  	});*/
-
 	Meteor.subscribe ('Datos');
-	//Meteor.subscribe ('Logs');
 	Meteor.subscribe ('Get');
 	Meteor.subscribe ('Inbound');
 
@@ -227,7 +234,7 @@ if (Meteor.isClient) {
 		directionsService = new google.maps.DirectionsService();
 		directionsDisplay = new google.maps.DirectionsRenderer();
 		directionsDisplay.setMap(map);
-		directionsDisplay.setPanel(document.getElementById('directions-panel')); 
+		directionsDisplay.setPanel(document.getElementById('directions-panel'));
 		var marker = new google.maps.Marker({
 		position: {lat: -25.304251, lng:-57.560504},
 		map: map,
@@ -241,58 +248,26 @@ if (Meteor.isClient) {
 		});
 		marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
 		//Logs.findOne({}, {sort: {fecha: -1, limit: 1}}).fetch()
-		Meteor.call ("ultimaDeteccion", function(error,result){
-			if(error){
-				console.log(error);
-			} else{
-				console.log(result);
-				console.log(result.Sensor);
-				if(result.Sensor=="01"){
-					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+		this.autorun(function() {
+				Meteor.call ("ultimaDeteccion", function(error,result){
+				if(error){
+						console.log(error);
+				} else{
+						if(result.Sensor=="01" && result.Ack==false){
+								Meteor.call("updateAck",result._id);
+								marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+						}
 				}
-			}
+				});
 		});
-
-		/*var ultimaDeteccion;
-		Meteor.call ("ultimaDeteccion", function(error,result){
-			if(error){
-				console.log(error);
-			} else{
-				Session.set("ultimaDeteccion",result)
-			}
-		});
-		var datoUtil=Session.get("ultimaDeteccion");
-		console.log(datoUtil);
-
-		var la;
-		Meteor.call("cantidadEntradas", function(error,result){
-			if(error){
-				console.log(error);
-			} else{
-				Session.set("la",result)
-			}
-		});
-
-		if(Session.get("la")){
-			if(datoUtil.aldea===1 && datoUtil.casa===1 && datoUtil.ack===false){
-				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-			}
-			if(datoUtil.aldea===1 && datoUtil.casa===2 && datoUtil.ack===false){
-				marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-			}
-		}*/
 
 		marker.addListener('click', function() {
-			/*console.log(Logs.findOne({}, {sort: {fecha: -1, limit: 1}}));
-			Logs.update(ultimaDeteccion._id,{
-				$set:{ack:true},
-			});*/
     		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
   		});
   		marker2.addListener('click', function() {
 	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
   		});
-	}); 
+	});
 
 	Template.mapview2.onRendered(function () {
 		var mapOptions = {
@@ -310,7 +285,7 @@ if (Meteor.isClient) {
 		title:"Municipalidad de Lambare"
 		});
 		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-	});  
+	});
 	Template.mapview3.onRendered(function () {
 		var mapOptions = {
 			zoom: 16,
@@ -334,10 +309,11 @@ if (Meteor.isClient) {
 			return Inbound.find({}, {sort: {Date: -1} })
 		},
 		'getDatos':function(){
-			return Datos.findOne({}, {sort: {Date: -1, limit: 1}});
+			return Datos.findOne({}, {sort: {fecha: -1}});
 		}
 	});
 
+/*
 	Template.datos.onRendered(function(){
 		var temperatura=Router.current().params.query.temperatura;
 		var viento=Router.current().params.query.viento;
@@ -352,13 +328,15 @@ if (Meteor.isClient) {
 		};
 		Meteor.call("cargarDatosGet",ayuda);
 	});
+*/
+
 	Template.login.events({
 		'click #btn-signup': function(event){
 			event.preventDefault();
 			var email = $('#signup-useremail').val();
 			var password = $('#signup-password').val();
 			var firstName = $('#signup-userfirstname').val();
-			var lastName = $('#signup-userlastname').val();  
+			var lastName = $('#signup-userlastname').val();
 			Accounts.createUser({
 				email: email,
 				password: password,
@@ -367,7 +345,7 @@ if (Meteor.isClient) {
 			}, function(error){
 				if(error){
 					alert(T9n.get(error.reason));
-				} 
+				}
 			});
 		},
 		'click #btn-login': function(event){
@@ -390,63 +368,107 @@ if (Meteor.isClient) {
 				$("#btn-login").click();
 			}
 		}
-});
+	});
 
-Template.navbar.events({
- 'click .logout': function(event){
-  event.preventDefault();
-  Meteor.logout();
-  Router.go('home');
+	Template.navbar.events({
+	 'click .logout': function(event){
+	  event.preventDefault();
+	  Meteor.logout();
+	  Router.go('home');
+	}
+	});
+
+	Template.account.events({
+	 'click #updateAccount': function(){
+	  var firstName = $('#userFistName').val();
+	  var lastName = $('#userLastName').val();
+	  if (firstName === "")
+	    firstName = Meteor.user().profile.firstName;
+	  if (lastName === "")
+	    lastName = Meteor.user().profile.lastName;
+	  Meteor.call("updateAccount", firstName,lastName);
+	  Router.go('home');
+	},
+	'click #cancelUpdateAccount': function() {
+	  history.back();
+	},
+	'click #changePassword': function() {
+	  Router.go('changePassword');
+	}
+	});
+
+	Template.changePassword.events({
+	 'click #updatePassword': function () {
+	   var oldPassword = $('#oldPassword').val();
+	   var newPassword = $('#newPassword').val();
+	   var repeatedNewPassword = $('#repeatedNewPassword').val();
+	   var message = "";
+	   if (newPassword !== repeatedNewPassword) {
+	    $('#alertMessage').text("Las contraseñas no coindicen");
+	    $('#alert').show();
+	    return false;
+	  }
+	  Accounts.changePassword(oldPassword, newPassword, function(error) {
+	    if (error) {
+	      message = 'Hubo un problema: ' + T9n.get(error.reason);
+	    } else {
+	      message = 'Cambiaste correctamente tu contraseña'
+	    }
+	    $('#alertMessage').text(message);
+	    $('#alert').show();
+	  });
+	  $('#oldPassword').val("");
+	  $('#newPassword').val("");
+	  $('#repeatedNewPassword').val("");
+	},
+	'click #cancelPasswordChange': function(){
+	  history.back();
+	}
+	});
+
+	Template.exportarLogsEstacion.events({
+ 		"click #export": function() {
+ 			MyAppExporter.exportAllContacts();
+ 		}
+ 	});
+
+ 	MyAppExporter = {
+ 		exportAllContacts: function() {
+ 			var self = this;
+ 			Meteor.call("exportAllContacts", function(error, data) {
+
+ 				if ( error ) {
+ 					alert(error); 
+ 					return false;
+ 				}
+
+ 				var csv = Papa.unparse(data);
+ 				self._downloadCSV(csv);
+ 			});
+ 		},
+
+ 		exportContact: function(id) {
+ 			var self = this;
+ 			Meteor.call("exportContact", id, function(error, data) {
+
+ 				if ( error ) {
+ 					alert(error); 
+ 					return false;
+ 				}
+
+ 				var csv = Papa.unparse(data);
+ 				self._downloadCSV(csv);
+ 			});
+ 		},
+
+ 		_downloadCSV: function(csv) {
+ 			var blob = new Blob([csv]);
+ 			var a = window.document.createElement("a");
+ 			a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+ 			a.download = "contacts.csv";
+ 			document.body.appendChild(a);
+ 			a.click();
+ 			document.body.removeChild(a);
+ 		}
+ 	}
 }
-});
-
-Template.account.events({
- 'click #updateAccount': function(){
-  var firstName = $('#userFistName').val();
-  var lastName = $('#userLastName').val();
-  if (firstName === "")
-    firstName = Meteor.user().profile.firstName;
-  if (lastName === "")
-    lastName = Meteor.user().profile.lastName;  
-  Meteor.call("updateAccount", firstName,lastName);
-  Router.go('home');
-},
-'click #cancelUpdateAccount': function() {
-  history.back();
-},
-'click #changePassword': function() {
-  Router.go('changePassword');
-}
-});
-
-Template.changePassword.events({
- 'click #updatePassword': function () {
-   var oldPassword = $('#oldPassword').val();
-   var newPassword = $('#newPassword').val();
-   var repeatedNewPassword = $('#repeatedNewPassword').val();
-   var message = "";
-   if (newPassword !== repeatedNewPassword) {
-    $('#alertMessage').text("Las contraseñas no coindicen");
-    $('#alert').show();
-    return false; 
-  }
-  Accounts.changePassword(oldPassword, newPassword, function(error) {
-    if (error) {
-      message = 'Hubo un problema: ' + T9n.get(error.reason);
-    } else {
-      message = 'Cambiaste correctamente tu contraseña'
-    }
-    $('#alertMessage').text(message);
-    $('#alert').show();  
-  });
-  $('#oldPassword').val("");
-  $('#newPassword').val("");
-  $('#repeatedNewPassword').val("");   
-},
-'click #cancelPasswordChange': function(){
-  history.back();
-}
-});
-}
-
-
