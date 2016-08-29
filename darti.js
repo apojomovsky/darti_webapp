@@ -148,6 +148,9 @@ if (Meteor.isServer) {
 			//return Datos.find({createdBy: currentUserId})
 			return Inbound.find()
 		});
+		Meteor.publish('Markers',function(){
+			return Markers.find()
+		});
 	});
 
 	Router.configureBodyParsers = function(){
@@ -258,6 +261,7 @@ if (Meteor.isClient) {
 	Meteor.subscribe ('Datos');
 	Meteor.subscribe ('Get');
 	Meteor.subscribe ('Inbound');
+	Meteor.subscribe ('Markers');
 
 	Template.mapview1.onRendered(function () {
 		var numSensores=2;
@@ -472,18 +476,12 @@ if (Meteor.isClient) {
 
  	Template.agregarMarcador.events({
  		"click #guardarNuevoMarcador": function(){
- 			var nombreMarcador = $('.nuevoMarcador #nuevoMarcadorNombre').val();
- 			var latitudMarcador = parseFloat($('.nuevoMarcador #nuevoMarcadorLatitud').val());
- 			var longitudMarcador = parseFloat($('.nuevoMarcador #nuevoMarcadorLongitud').val());
- 			var  aldeaMarcador = $('.nuevoMarcador #nuevoMarcadorAldea').val();
- 			var casaMarcador = $('.nuevoMarcador #nuevoMarcadorCasa').val();
-
- 			var marcadorNuevo = {
- 				name: nombreMarcador,
- 				lat: latitudMarcador,
- 				long: longitudMarcador,
- 				aldea: aldeaMarcador,
- 				casa: casaMarcador
+			var marcadorNuevo = {
+ 				name: $('.nuevoMarcador #nuevoMarcadorNombre').val(),
+ 				lat: parseFloat($('.nuevoMarcador #nuevoMarcadorLatitud').val()),
+ 				long: parseFloat($('.nuevoMarcador #nuevoMarcadorLongitud').val()),
+ 				aldea: $('.nuevoMarcador #nuevoMarcadorAldea').val(),
+ 				casa: $('.nuevoMarcador #nuevoMarcadorCasa').val()
  			};
 
  			console.log(marcadorNuevo);
