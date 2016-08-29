@@ -50,3 +50,7 @@ div.container4 h1 {
     margin-right: 25px;
 }
 
+.navbar-collapse {
+  width: 100%;
+}
+
