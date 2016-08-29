@@ -1,0 +1,26 @@
+body{
+	padding-top: 80px;
+}
+
+#map-canvas1 {
+  height: 400px;
+  margin: auto;
+  margin-left: 50px; 
+}
+
+#map-canvas2 {
+  height: 400px;
+  margin: auto;
+  margin-left: 50px; 
+}
+
+#map-canvas3 {
+  height: 400px;
+  margin: auto;
+  margin-left: 50px; 
+}
+
+.navbar-right {
+    margin-right: 25px;
+}
+

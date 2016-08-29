@@ -1,0 +1,242 @@
+<head>
+	<title>Darti</title>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?libraries=places,geometry">		
+	</script>	 
+</head>
+
+<body>
+
+</body>
+<template name="main">
+	{{>navbar}}
+	<div class="container">
+		{{>yield}}
+	</div>
+</template>
+
+<template name="navbar">
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">  
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand">Darti</a>
+			</div>
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="{{pathFor route='home'}}">Principal</a></li>
+					<li><a href="/informes">Informes</a></li>
+					<li><a href="/usuarios">Usuarios</a></li>
+					<li><a href="/configuracion">Configuracion</a></li>
+				</ul>				
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown">
+						{{#if currentUser}}
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> <span class="glyphicon glyphicon-user"></span>  {{userName}}<span class="caret"></span></a>
+						<ul class="dropdown-menu dropdown-cart" role="menu">
+							<li><a href="{{pathFor route='account'}}" class="account">My Account</a></li>
+							<li class = "divider"></li>
+							<li><a href="#" class="logout">Logout</a></li>
+						</ul>
+						{{else}}
+						<a href="{{pathFor route='home'}}">Login</a>
+						{{/if}}	
+					</li>
+				</ul>						
+			</div>    
+		</div> <!-- /.container-fluid-->
+	</nav>
+</template>
+
+<template name ="login">
+	<div id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">                    
+		<div class="panel panel-info" >
+			<div class="panel-heading">
+				<div class="panel-title">Sign In</div>
+				<div style="float:right; font-size: 80%; position: relative; top:-10px"><a href="#">Forgot password?</a></div>
+			</div>     
+
+			<div style="padding-top:30px" class="panel-body" >
+
+				<div style="display:none" id="login-alert" class="alert alert-danger col-sm-12"></div>
+
+				<form id="loginform" class="form-horizontal" role="form">
+
+					<div style="margin-bottom: 25px" class="input-group">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+						<input id="login-username" type="text" class="form-control" name="username" value="" placeholder="username or email">                                        
+					</div>
+
+					<div style="margin-bottom: 25px" class="input-group">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+						<input id="login-password" type="password" class="form-control" name="password" placeholder="password">
+					</div>
+
+
+
+					<div class="input-group">
+						<div class="checkbox">
+							<label>
+								<input id="login-remember" type="checkbox" name="remember" value="1"> Remember me
+							</label>
+						</div>
+					</div>
+
+
+					<div style="margin-top:10px" class="form-group">
+						<!-- Button -->
+
+						<div class="col-sm-12">
+							<button type="button" id="btn-login" class="btn btn-success">Login</button>                                  
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<div class="col-md-12 control">
+							<div style="border-top: 1px solid#888; padding-top:15px; font-size:85%" >
+								Don't have an account! 
+								<a href="#" onClick="$('#loginbox').hide(); $('#signupbox').show()">
+									Sign Up Here
+								</a>
+							</div>
+						</div>
+					</div>    
+				</form>     
+
+
+
+			</div>                     
+		</div>  
+	</div>
+	<div id="signupbox" style="display:none; margin-top:50px" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<div class="panel-title">Sign Up</div>
+				<div style="float:right; font-size: 85%; position: relative; top:-10px"><a id="signinlink" href="#" onclick="$('#signupbox').hide(); $('#loginbox').show()">Sign In</a></div>
+			</div>  
+			<div class="panel-body" >
+				<form id="signupform" class="form-horizontal" role="form">
+
+					<div id="signupalert" style="display:none" class="alert alert-danger">
+						<p>Error:</p>
+						<span></span>
+					</div>
+
+
+
+					<div class="form-group">
+						<label for="email" class="col-md-3 control-label">Email</label>
+						<div class="col-md-9">
+							<input id="signup-useremail" type="text" class="form-control" name="email" placeholder="Email Address"> 
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="firstname" class="col-md-3 control-label">First Name</label>
+						<div class="col-md-9">
+							<input id="signup-userfirstname" type="text" class="form-control" name="firstname" placeholder="First Name">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="lastname" class="col-md-3 control-label">Last Name</label>
+						<div class="col-md-9">
+							<input id="signup-userlastname" type="text" class="form-control" name="lastname" placeholder="Last Name">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="password" class="col-md-3 control-label">Password</label>
+						<div class="col-md-9">
+							<input id="signup-password" type="password" class="form-control" name="passwd" placeholder="Password">
+						</div>
+					</div>                               
+
+					<div class="form-group">
+						<!-- Button -->                                        
+						<div class="col-md-offset-3 col-md-9">
+							<button id="btn-signup" type="button" class="btn btn-info"><i class="icon-hand-right"></i> &nbsp; Sign Up</button> 
+						</div>
+					</div>                                          
+				</form>
+			</div>
+		</div>                       
+	</div> 
+</template>
+
+<template name ="account">
+	<div class="row">
+		<div class="col-md-4">                    
+			<label>Registered First Name</label>
+			<input type="text" class="form-control" placeholder="{{userName}}" id="userFistName">
+			<label>Registered Last Name</label>
+			<input type="text" class="form-control" placeholder="{{userLastName}}" id="userLastName">
+			<label>Registered Email</label>
+			<input type="text" class="form-control" placeholder="{{userEmail}}" disabled>
+			<br>
+			<button type="button" class="btn btn-primary" id ="updateAccount">Actualizar</button>
+			<button type="button" class="btn btn-primary" id ="changePassword">Cambiar Contraseña</button>
+			<button type="button" class="btn btn-primary" id ="cancelUpdateAccount">Cancel</button>
+		</div>
+	</div>
+</template>
+
+<template name ="changePassword">
+	<div class="row">
+		<div class="col-md-4">                    
+			<label>Contraseña Actual</label>
+			<input type="password" class="form-control" id="oldPassword">
+			<label>Nueva Contraseña</label>
+			<input type="password" class="form-control" id="newPassword">
+			<label>Confirmar Nueva Contraseña</label>
+			<input type="password" class="form-control" id="repeatedNewPassword">
+			<button type="button" class="btn btn-primary" id ="updatePassword">Actualizar</button>
+			<button type="button" class="btn btn-primary" id ="cancelPasswordChange">Cancel</button>
+			<p id="passwordErrorMessage"></p>
+		</div>
+		{{> alert}}
+	</div>
+</template>
+
+<template name="mapview1">	
+</template>
+<template name="mapview2">	
+</template>
+<template name="mapview3">	
+</template>
+
+<template name= "home">
+	{{#if currentUser}}
+		{{>todo}}
+	{{else}}
+		{{>login}}
+	{{/if}}
+</template>
+
+
+<template name= "todo">
+	<div class= "row">
+		<div class="col-md-3" id="map-canvas1">
+			{{>mapview1}}
+		</div>
+		<div class="col-md-3" id="map-canvas2">
+			{{>mapview2}}
+		</div>
+		<div class="col-md-3" id="map-canvas3">
+			{{>mapview3}}
+		</div>
+	</div>
+	<div class= "row">
+		<label>Historial de Eventos Recientes</label>
+		<textarea class="form-control" name="message" placeholder="Historial" rows="5" id = "logs">13:10hs - 21/02/2016 Disparo de sensor en Municipalidad de Lambare</textarea>
+	</div>
+</template>
+
+<template name="informes">
+	<h1>Esta es la pagina de informes</h1>
+</template>
+
+<template name="usuarios">
+	<h1>Esta es la pagina de usuarios</h1>
+</template>
+
+<template name="configuracion">
+	<h1>Esta es la pagina de configuracion</h1>
+</template>
