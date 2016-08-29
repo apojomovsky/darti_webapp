@@ -72,6 +72,7 @@ Router.route('/inbound', function () {
 			Casa:mensaje3[1],
 			Sensor:mensaje3[2],
 			Date: emailDate,
+			Ack: false,
 		});
 	}
 }, {where: 'server'});
@@ -192,6 +193,9 @@ if (Meteor.isServer) {
       	},
 		'ultimaDeteccion':function(){
 			return Inbound.findOne({}, {sort: {Date: -1, limit: 1}});
+		},
+		'cargarUltimo':function(){
+			
 		}
 		/*
 		'cantidadEntradas':function(){
@@ -214,6 +218,7 @@ if (Meteor.isClient) {
 	Meteor.subscribe ('Inbound');
 
 	Template.mapview1.onRendered(function () {
+		var numSensores=2;
 		var mapOptions = {
 			zoom: 16,
 			center: new google.maps.LatLng(-25.304251, -57.560504)
@@ -235,18 +240,19 @@ if (Meteor.isClient) {
 		title:"Municipalidad de Asuncion 2"
 		});
 		marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-		//Rutina de evento "click" en el mapa
 		//Logs.findOne({}, {sort: {fecha: -1, limit: 1}}).fetch()
 		Meteor.call ("ultimaDeteccion", function(error,result){
 			if(error){
 				console.log(error);
 			} else{
-				Session.set('ultimaDet',result);
 				console.log(result);
+				console.log(result.Sensor);
+				if(result.Sensor=="01"){
+					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+				}
 			}
 		});
-		datoUtil=Session.get('ultimaDet');
-		console.log("SPARTAA " + datoUtil);
+
 		/*var ultimaDeteccion;
 		Meteor.call ("ultimaDeteccion", function(error,result){
 			if(error){
@@ -281,7 +287,7 @@ if (Meteor.isClient) {
 			Logs.update(ultimaDeteccion._id,{
 				$set:{ack:true},
 			});*/
-    		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+    		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
   		});
   		marker2.addListener('click', function() {
 	    	marker2.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
